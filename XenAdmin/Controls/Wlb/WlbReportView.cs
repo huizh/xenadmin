@@ -38,6 +38,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Windows;
 using System.Xml;
 using XenAPI;
 using XenAdmin.Core;
@@ -48,10 +49,10 @@ using XenAdmin.Actions;
 using XenAdmin.Actions.Wlb;
 using XenAdmin.Help;
 using System.Collections;
-
+//using System.Collections.Specialized;
 // Report viewer control dependencies
 using Microsoft.Reporting.WinForms;
-using Microsoft.ReportingServices;
+//using Microsoft.ReportingServices;
 using System.IO;
 
 
@@ -74,10 +75,18 @@ namespace XenAdmin.Controls.Wlb
         private bool _bDisplayedError;
         private bool _resetReportViewer;
         private int _currentOffsetMinutes;
+        private int _startLine;
+        private int _endLine;
+        private bool _userComboSet;
+        private bool _objectComboSet;
+        private string _startTime = String.Empty;
+        private string _endTime = String.Empty;
 
         private WlbReportInfo _reportInfo;
         private LocalReport _localReport;
         private IEnumerable<Host> _hosts;
+        private IEnumerable<string> _users;
+        private IEnumerable<string> _objects;
         private Pool _pool;
         private List<string> _selectedCustomFilters; 
         private static string DELIMETER = ",";
@@ -133,6 +142,8 @@ namespace XenAdmin.Controls.Wlb
         public WlbReportView()
         {
             InitializeComponent();
+            //_startLine = 1;
+            //_endLine = 5001;
             FixSearchTextField(); //Fix for CA-59482: don't let the text length be more that 32 chars
             
             //CA-67888: For localizing export menu items
@@ -492,6 +503,11 @@ namespace XenAdmin.Controls.Wlb
         /// <param name="reportInfo">ReportInfo instance</param>
         public void SynchReportViewer(WlbReportInfo reportInfo)
         {
+            if(reportInfo.IsAuditReport)
+            {
+                InitializeAuditReport();
+            }
+
             this.ViewerReportInfo = reportInfo;
 
             if (ResetReportViewer == true)
@@ -555,6 +571,47 @@ namespace XenAdmin.Controls.Wlb
                 this.panelShow.Visible = false;
             }
 
+
+            if (reportInfo.DisplayUsers)
+            {
+
+                this.panelUsers.Visible = true;
+                if(!_userComboSet)
+                {
+                    string[] audit_users = reportInfo.ReportQueryParameterNames["AuditUser"].ToString().Split('&');
+                    this.SetUserComboBox(audit_users);
+                    _userComboSet = true;
+                }
+
+                this.userComboBox.SelectedIndex = 0;
+            }
+            else
+            {
+                // Users dropdown does not need to be displayed
+                this.panelUsers.Visible = false;
+            }
+
+
+            if (reportInfo.DisplayAuditObjects)
+            {
+
+                this.panelObjects.Visible = true;
+                if(!_objectComboSet)
+                {
+                    string[] audit_objects = reportInfo.ReportQueryParameterNames["AuditObject"].ToString().Split('&');
+                    this.SetObjectComboBox(audit_objects);
+                    _objectComboSet = true;
+                }
+
+                this.objectComboBox.SelectedIndex = 0;
+            }
+            else
+            {
+                // Users dropdown does not need to be displayed
+                this.panelObjects.Visible = false;
+            }
+
+
             this.Visible = true;
         }
         #endregion
@@ -597,6 +654,59 @@ namespace XenAdmin.Controls.Wlb
             hostComboBox.Sorted = true;
         }
 
+        /// <summary>
+        /// Populates the users drop down with users retrieved from WLB server
+        /// </summary>
+        private void SetUserComboBox(string[] _users)
+        {
+            if (_users != null)
+            {
+                /*
+                userComboBox.DisplayMember = "Text";
+                userComboBox.ValueMember = "Value";
+                foreach (string user in _users)
+                {
+                    userComboBox.Items.Add(new { Text = user, Value = user });
+                }
+                userComboBox.Items.Add(new {Text = "ALL", Value = "ALL"});
+                */
+                foreach (string user in _users)
+                {
+                    userComboBox.Items.Add(user);
+                }
+                userComboBox.Items.Add("ALL");
+            }
+
+            userComboBox.Sorted = true;
+            userComboBox.SelectedIndex = 0;
+
+        }
+
+        /// <summary>
+        /// Populates the objects drop down with objects retrieved from WLB server
+        /// </summary>
+        private void SetObjectComboBox(string[] _objects)
+        {
+            if (_objects != null)
+            {
+                /*
+                objectComboBox.DisplayMember = "Text";
+                objectComboBox.ValueMember = "Value";
+                foreach (string auditobject in _objects)
+                {
+                    objectComboBox.Items.Add(new { Text = auditobject, Value = auditobject });
+                }
+                objectComboBox.Items.Add(new {Text = "ALL", Value = "ALL"});
+                */
+                foreach (string auditObject in _objects)
+                {
+                    objectComboBox.Items.Add(auditObject);
+                }
+                objectComboBox.Items.Add("ALL");
+            }
+            objectComboBox.Sorted = true;
+            objectComboBox.SelectedIndex = 0;
+        }
 
         /// <summary>
         /// Populates the hosts drop down with hosts from the current pool
@@ -624,6 +734,7 @@ namespace XenAdmin.Controls.Wlb
         {
             try
             {
+                //OrderedDictionary
                 ReportParameterInfoCollection currentParams = _localReport.GetParameters();
                 ReportParameter rpCurrentParam;
                 string paramValue = String.Empty;
@@ -632,6 +743,8 @@ namespace XenAdmin.Controls.Wlb
                     this._reportParameters = new Dictionary<string, string>();
                 else
                     this._reportParameters.Clear();
+
+                bool isAuditReport = _reportInfo.IsAuditReport;
                 
                 foreach (ReportParameterInfo rp in currentParams)
                 {
@@ -645,11 +758,51 @@ namespace XenAdmin.Controls.Wlb
 
                         case "Start":
                             paramValue = currentParams["Start"].Values.Count == 0 ? GetDateOffset(HelpersGUI.DateTimeToString(StartDatePicker.Value, Messages.DATEFORMAT_DMY, false)) : currentParams["Start"].Values[0];
+                            if(isAuditReport)
+                            {
+                                //if(_startLine == 1)
+                                if(String.IsNullOrEmpty(_startTime))
+                                {
+                                    int offSet = Convert.ToInt32(paramValue);
+                                    paramValue = ((Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds) / 86400000 + offSet) * 86400).ToString();
+                                    _startTime = paramValue;                                    
+                                }
+                                else
+                                {
+                                    paramValue = _startTime;
+                                }
+
+                            }
+
                             addParam = true;
                             break;
 
                         case "End":
-                            paramValue = currentParams["End"].Values.Count == 0 ? GetDateOffset(HelpersGUI.DateTimeToString(EndDatePicker.Value, Messages.DATEFORMAT_DMY, false)) : currentParams["End"].Values[0];
+                            paramValue = currentParams["End"].Values.Count == 0 ? GetDateOffset(HelpersGUI.DateTimeToString(EndDatePicker.Value, Messages.DATEFORMAT_DMY, false)) : currentParams["End"].Values[0];    
+                            if(isAuditReport)
+                            {
+                                //if(_endLine == 5001)
+                                if(String.IsNullOrEmpty(_endTime))
+                                {
+                                if(Convert.ToInt64(paramValue) <= 0)
+                                {
+                                    if(paramValue == "0")
+                                    {
+                                        paramValue = Convert.ToInt64(((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds) / 1000).ToString();
+                                    }
+                                    else
+                                    {
+                                        int offSet = Convert.ToInt32(paramValue) + 1;
+                                        paramValue = ((Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds) / 86400000 + offSet) * 86400).ToString();
+                                    }
+                                    _endTime = paramValue;
+                                }
+                                }
+                                else
+                                {
+                                    paramValue = _endTime;
+                                }
+                            }
                             addParam = true;
                             break;
 
@@ -695,6 +848,28 @@ namespace XenAdmin.Controls.Wlb
                             addParam = true;
                             break;
 
+                        case "AuditUser":
+                            paramValue = currentParams["AuditUser"].Values.Count == 0 ? userComboBox.SelectedItem.ToString(): currentParams["AuditUser"].Values[0];
+                            addParam = true;
+                            //isAuditLog = true;
+                            break;
+
+                        case "AuditObject":
+                            paramValue = currentParams["AuditObject"].Values.Count == 0 ? objectComboBox.SelectedItem.ToString(): currentParams["AuditObject"].Values[0];
+                            addParam = true;
+                            //isAuditLog = true;
+                            break;
+
+                        case "StartLine":
+                            paramValue = _startLine.ToString();
+                            addParam = true;
+                            break;
+
+                        case "EndLine":
+                            paramValue = _endLine.ToString();
+                            addParam = true;
+                            break;
+
                     }
                     if (addParam)
                     {
@@ -703,6 +878,37 @@ namespace XenAdmin.Controls.Wlb
                         _reportParameters.Add(rp.Name, paramValue);
                     }
                 }
+/*
+                if(isAuditLog)
+                {
+                    // Need to store the start and end time somewhere.
+                    string endTime;
+                    string startTime;
+
+                    if (_reportParameters.TryGetValue("Start", out startTime) && Convert.ToInt64(startTime) <= 0)
+                    {
+
+                    }
+
+                    if (_reportParameters.TryGetValue("End", out endTime) && Convert.ToInt64(endTime) <= 0)
+                    {
+
+                        if(endTime == "0")
+                        {
+                            endTime = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds.ToString();
+
+                            rpCurrentParam = new ReportParameter("End", endTime);
+                            IEnumerable<ReportParameter> rp = new Microsoft.Reporting.WinForms.ReportParameter[] { rpCurrentParam };
+                            _localReport.SetParameters(rp);
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+*/
+
             }
             catch(LocalProcessingException ex)
             {
@@ -743,7 +949,24 @@ namespace XenAdmin.Controls.Wlb
             string returnValue = string.Empty;
             List<string> reportQueryParams;
 
-            reportQueryParams = _reportInfo.ReportQueryParameterNames;
+            //reportQueryParams = new List<String>(new ArrayList(_reportInfo.ReportQueryParameterNames.Keys));
+            reportQueryParams = new List<String>();
+            //IEnumerable<String> keyCollections = _reportInfo.ReportQueryParameterNames.Keys.Cast<String>();
+            ICollection keyCollections = _reportInfo.ReportQueryParameterNames.Keys;
+            //int keycnt = keyCollections.Count;
+            int cnt = _reportInfo.ReportQueryParameterNames.Count;
+            String[] paramKeys = new String[cnt];
+            //for (int i = 0; i <cnt; i++)
+            //{
+            //    keyCollections.CopyTo(paramKeys, i);
+            //}
+            keyCollections.CopyTo(paramKeys, 0);
+            
+            for (int i = 0; i <cnt; i++)
+            {
+                reportQueryParams.Add(paramKeys[i]);
+            }
+
             reportQueryParams.Add("UTCOffset");
             reportQueryParams.Add("LocaleCode");            
 
@@ -753,6 +976,10 @@ namespace XenAdmin.Controls.Wlb
             {
                 parms[reportQueryParams[i].ToString()] = currentParams[reportQueryParams[i].ToString()].Values[0].ToString();
             }
+
+            //Set start line and end line for audit log report.
+            //parms["StartLine"] = "1";
+            //parms["EndLine"] = "5000";
 
             AsyncAction a = new WlbReportAction(Pool.Connection, 
                                                 Helpers.GetMaster(Pool.Connection),
@@ -806,6 +1033,26 @@ namespace XenAdmin.Controls.Wlb
                     reportDataSource1.Name = "KirkwoodDBDataSetLocal";
                     reportDataSource1.Value = reportDS.Tables[0];
                     _localReport.DataSources.Add(reportDataSource1);
+
+                    if (_reportInfo.IsAuditReport)
+                    {
+                        int cnt = reportDS.Tables[0].Rows.Count;    
+                        if (cnt > 5000)
+                        {
+                            _startLine += 5000;
+                            _endLine += 5000;
+                            this.btnRunReport.Text = "&More";
+                            this.lblExported.Text = "&Click \"More\" for more report contents";
+                            this.lblExported.Visible = true;
+                        }
+                        else
+                        {
+                            _startLine = 1;
+                            _endLine = 5001;
+                            this.btnRunReport.Text = "&Run Report";
+                        }
+                    }
+                    
 
                     // Set the report label names and values
                     if (reportDS.Tables[1].Rows.Count > 0)
@@ -948,6 +1195,10 @@ namespace XenAdmin.Controls.Wlb
             // Hosts dropdown and label is invisible until we need it
             this.panelShow.Visible = false;
             this.panelHosts.Visible = false;
+
+            // Prototype.
+            this.panelUsers.Visible = false;
+            this.panelObjects.Visible = false;
 
             // Set UTC Offset
             TimeZone tz = TimeZone.CurrentTimeZone;
@@ -1202,6 +1453,21 @@ namespace XenAdmin.Controls.Wlb
 
 
         #endregion //Event Handler
+
+        private void comboBox_SelectionChanged(object sender, EventArgs e)
+        {
+            InitializeAuditReport();
+        }
+
+        private void InitializeAuditReport()
+        {
+            //MessageBox.Show("changed");
+            _startTime = String.Empty;
+            _endTime = String.Empty;
+            _startLine = 1;
+            _endLine = 5001;
+            this.btnRunReport.Text = "&Run Report";
+        }
 
     }
 }

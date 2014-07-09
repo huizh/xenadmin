@@ -40,9 +40,11 @@
             this.subscriptionView1 = new XenAdmin.Controls.Wlb.WlbReportSubscriptionView();
             this.contextMenuReports = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.runReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerLeftPane)).BeginInit();
             this.splitContainerLeftPane.Panel1.SuspendLayout();
             this.splitContainerLeftPane.Panel2.SuspendLayout();
             this.splitContainerLeftPane.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -113,22 +115,20 @@
             // 
             resources.ApplyResources(this.wlbReportView1, "wlbReportView1");
             this.wlbReportView1.Hosts = null;
-            this.wlbReportView1.MinimumSize = new System.Drawing.Size(350, 350);
             this.wlbReportView1.Name = "wlbReportView1";
             this.wlbReportView1.Pool = null;
             this.wlbReportView1.ResetReportViewer = false;
             this.wlbReportView1.ViewerLocalReport = null;
             this.wlbReportView1.ViewerReportInfo = null;
-            this.wlbReportView1.Close += new System.EventHandler(this.wlbReportView1_Close);
             this.wlbReportView1.ReportDrilledThrough += new Microsoft.Reporting.WinForms.DrillthroughEventHandler(this.wlbReportView1_ReportDrilledThrough);
             this.wlbReportView1.ReportBack += new Microsoft.Reporting.WinForms.BackEventHandler(this.wlbReportView1_ReportBack);
+            this.wlbReportView1.Close += new System.EventHandler(this.wlbReportView1_Close);
             this.wlbReportView1.PoolConnectionLost += new System.EventHandler(this.wlbReportView1_PoolConnectionLost);
             // 
             // subscriptionView1
             // 
             resources.ApplyResources(this.subscriptionView1, "subscriptionView1");
             this.subscriptionView1.BackColor = System.Drawing.SystemColors.Control;
-            this.subscriptionView1.MinimumSize = new System.Drawing.Size(671, 278);
             this.subscriptionView1.Name = "subscriptionView1";
             this.subscriptionView1.Pool = null;
             this.subscriptionView1.Close += new System.EventHandler(this.wlbReportView1_Close);
@@ -152,7 +152,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
-            this.HelpButton = true;
             this.Icon = global::XenAdmin.Properties.Resources.AppIcon;
             this.Name = "WorkloadReports";
             this.Load += new System.EventHandler(this.ReportForm_Load);
@@ -161,14 +160,15 @@
             this.splitContainerLeftPane.Panel1.PerformLayout();
             this.splitContainerLeftPane.Panel2.ResumeLayout(false);
             this.splitContainerLeftPane.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainerLeftPane)).EndInit();
             this.splitContainerLeftPane.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.contextMenuReports.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

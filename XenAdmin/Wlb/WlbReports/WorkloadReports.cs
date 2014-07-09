@@ -31,6 +31,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text;
@@ -573,7 +574,12 @@ namespace XenAdmin
             string nodeReportDefinition;
             bool nodeDisplayHosts;
             bool nodeDisplayFilter;
-            List<string> nodeParamList;
+            bool nodeDisplayUsers;
+            bool nodeDisplayAuditObjects;
+            //List<string> nodeUserList;
+            //List<string> nodeAuditObjectList;
+            //Dictionary<string, string> nodeParamDict;
+            OrderedDictionary nodeParamDict;
             WlbReportInfo reportInfo;
             TreeNode reportTreeNode;
 
@@ -631,9 +637,48 @@ namespace XenAdmin
                 nodeDisplayHosts = true;
             }
 
+            // Boolean variuable to determine the display the User drop down menu?
+            if (currentNode.SelectSingleNode(@"QueryParameters/QueryParameter[starts-with(@Name, 'AuditUser')]") == null)
+            {
+                nodeDisplayUsers = false;
+            }
+            else
+            {
+                nodeDisplayUsers = true;
+            }
+
+            // Boolean variuable to determine the display the Host drop down menu?
+            if (currentNode.SelectSingleNode(@"QueryParameters/QueryParameter[starts-with(@Name, 'AuditObject')]") == null)
+            {
+                nodeDisplayAuditObjects = false;
+            }
+            else
+            {
+                nodeDisplayAuditObjects = true;
+            }
 
             // Get a list of query params
-            nodeParamList = GetSQLQueryParamNames(currentNode);
+            nodeParamDict = GetSQLQueryParamNames(currentNode);
+/*
+            // Boolean variuable to determine the display the User drop down menu?
+            if (currentNode.SelectSingleNode(@"QueryParameters/QueryParameter[starts-with(@Name, 'AuditUser|')]") != null)
+            {
+                //nodeReportDefinition = (new System.Text.RegularExpressions.Regex("\"AuditUser.+?\"")).Replace(nodeReportDefinition, "\"AuditUser\"");
+                //nodeReportDefinition = (new System.Text.RegularExpressions.Regex("<QueryParameter Name=\"@AuditUser\".+?>")).Replace(nodeReportDefinition, "<QueryParameter Name=\"@AuditUser\">");
+            }
+
+            // Boolean variuable to determine the display the Host drop down menu?
+            if (currentNode.SelectSingleNode(@"QueryParameters/QueryParameter[starts-with(@Name, 'AuditObject')]") != null)
+            {
+                //nodeReportDefinition = (new System.Text.RegularExpressions.Regex("\"AuditObject.+?\"")).Replace(nodeReportDefinition, "\"AuditObject\"");
+                //nodeReportDefinition = (new System.Text.RegularExpressions.Regex("<QueryParameter Name=\"@AuditObject\".+?>")).Replace(nodeReportDefinition, "<QueryParameter Name=\"@AuditObject\">");
+            }
+*/
+            //string[] users = {"root","test"};
+            //nodeUserList = new List<string>(users);
+
+            //string[] auditObjects = {"sr","task"};
+           // nodeAuditObjectList = new List<string>(auditObjects);
 
             // Create a report node and add it to the treeview for the current report
             reportInfo = new WlbReportInfo(nodeNameLabel,
@@ -641,7 +686,10 @@ namespace XenAdmin
                                            nodeReportDefinition,
                                            nodeDisplayHosts,
                                            nodeDisplayFilter,
-                                           nodeParamList);
+                                           nodeDisplayUsers,
+                                           nodeDisplayAuditObjects,
+                                           nodeParamDict,
+                                           nodeFileName.StartsWith("pool_audit"));
 
             reportTreeNode = new TreeNode();
             reportTreeNode.Tag = reportInfo;
@@ -678,16 +726,28 @@ namespace XenAdmin
         /// </summary>
         /// <param name="currentNode">Current report XML node from config file</param>
         /// <returns>List of parameter names whose values are required by the report SQL query</returns>
-        private List<string> GetSQLQueryParamNames(XmlNode currentNode)
+        //private Dictionary<string, string> GetSQLQueryParamNames(XmlNode currentNode)
+        private OrderedDictionary GetSQLQueryParamNames(XmlNode currentNode)
         {
-            List<string> paramNames = new List<string>();
+            //Dictionary<string, string> paramNames = new Dictionary<string, string>();
+            OrderedDictionary paramNames = new OrderedDictionary();
             XmlNodeList paramNameNodes = currentNode.SelectNodes("QueryParameters/QueryParameter");
 
             foreach (XmlNode paramNode in paramNameNodes)
             {
                 if (paramNode.Attributes["Name"] != null)
                 {
-                    paramNames.Add(paramNode.Attributes["Name"].Value);
+                    string value = paramNode.Attributes["Name"].Value;
+                    string[] kvpair = value.Split('|');
+                    if (kvpair.Length > 1)
+                    {
+                        paramNames.Add(kvpair[0], kvpair[1]);
+                    }
+                    else
+                    {
+                        paramNames.Add(value, "");
+                    }
+                    
                 }
             }
 
@@ -818,7 +878,7 @@ namespace XenAdmin
                     // Reset reportView and disable subscriptionView
                     this.subscriptionView1.Visible = false;
                     this.wlbReportView1.SynchReportViewer((WlbReportInfo)treeViewReportList.SelectedNode.Tag);
-
+                    this.wlbReportView1.btnRunReport.Text = "&Run Report";
                     // Run report if necessary
                     if (_runReport)
                     {
