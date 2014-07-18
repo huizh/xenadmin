@@ -11795,4 +11795,13 @@ XenServer 可以重新启动服务器并将其 CPU 降至主服务器的级别�
   <data name="YOU_ARE_HERE" xml:space="preserve">
     <value>您在此处</value>
   </data>
+  <data name="RUN_REPORT" xml:space="preserve">
+    <value>运行报告(&amp;R)</value>
+  </data>
+  <data name="RUN_MORE_REPORT" xml:space="preserve">
+    <value>更多报告(&amp;M)</value>
+  </data>
+  <data name="WLB_MORE_REPORT_BANNER" xml:space="preserve">
+    <value>请点击“更多报告”获取更多报告内容</value>
+  </data>
 </root>

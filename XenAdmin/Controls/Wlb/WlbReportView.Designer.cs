@@ -295,7 +295,9 @@ namespace XenAdmin.Controls.Wlb
             this.userComboBox.Size = new System.Drawing.Size(103, 21);
             this.userComboBox.TabIndex = 5;
             this.userComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.comboBox_DrawItem);
+            this.userComboBox.DropDownClosed += new System.EventHandler(this.comboBox_DropDownClosed);
             this.userComboBox.TextChanged += new System.EventHandler(this.comboBox_SelectionChanged);
+            this.userComboBox.Leave += new System.EventHandler(this.comboBox_DropDownClosed);
             // 
             // labelUser
             // 
@@ -338,7 +340,9 @@ namespace XenAdmin.Controls.Wlb
             this.objectComboBox.Size = new System.Drawing.Size(95, 21);
             this.objectComboBox.TabIndex = 7;
             this.objectComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.comboBox_DrawItem);
+            this.objectComboBox.DropDownClosed += new System.EventHandler(this.comboBox_DropDownClosed);
             this.objectComboBox.TextChanged += new System.EventHandler(this.comboBox_SelectionChanged);
+            this.objectComboBox.Leave += new System.EventHandler(this.comboBox_DropDownClosed);
             // 
             // WlbReportView
             // 

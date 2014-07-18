@@ -61,9 +61,7 @@ namespace XenAdmin.Wlb
         private bool _displayFilter;
         private bool _displayUsers;
         private bool _displayAuditObjects;
-        //private Dictionary<string, string> _reportQueryParameterNames;
         private OrderedDictionary _reportQueryParameterNames;
-        private bool _isAuditReport;
 
         #endregion
 
@@ -88,8 +86,7 @@ namespace XenAdmin.Wlb
                              bool DisplayFilter,
                              bool DisplayUsers, 
                              bool DisplayAuditObjects,
-                             OrderedDictionary reportQueryParameterNames,
-                             bool IsAuditReport)
+                             OrderedDictionary reportQueryParameterNames)
         {
             this._reportName = reportName;
             this._reportFile = reportFile;
@@ -99,7 +96,6 @@ namespace XenAdmin.Wlb
             this._displayUsers = DisplayUsers;
             this._displayAuditObjects = DisplayAuditObjects;
             this._reportQueryParameterNames = reportQueryParameterNames;
-            this._isAuditReport = IsAuditReport;
         }
 
 
@@ -165,21 +161,6 @@ namespace XenAdmin.Wlb
             get { return _displayAuditObjects; }
         }
 
-        /// <summary>
-        /// List of user names whose values are required for the SQL query
-        /// </summary>
-        //public List<string> UserNames
-        //{
-        //    get { return _userNames; }
-        //}
-
-        /// <summary>
-        /// List of audit object names whose values are required for the SQL query
-        /// </summary>
-        //public List<string> AuditObjectNames
-        //{
-        //    get { return _auditObjectNames; }
-        //}
 
         /// <summary>
         /// List of parameter names whose values are required for the SQL query
@@ -190,10 +171,6 @@ namespace XenAdmin.Wlb
             get { return _reportQueryParameterNames; }
         }
 
-        public bool IsAuditReport
-        {
-            get { return _isAuditReport; }
-        }
 
         #endregion
 

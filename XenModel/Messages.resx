@@ -12113,4 +12113,13 @@ You will need to navigate to the Console on each of the selected VMs to complete
   <data name="YOU_ARE_HERE" xml:space="preserve">
     <value>You are here</value>
   </data>
+  <data name="RUN_REPORT" xml:space="preserve">
+    <value>&amp;Run Report</value>
+  </data>
+  <data name="RUN_MORE_REPORT" xml:space="preserve">
+    <value>&amp;More</value>
+  </data>
+  <data name="WLB_MORE_REPORT_BANNER" xml:space="preserve">
+    <value>Click "More" for more report contents</value>
+  </data>
 </root>

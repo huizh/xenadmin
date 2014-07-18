@@ -35052,5 +35052,32 @@ namespace XenAdmin {
                 return ResourceManager.GetString("YOU_ARE_HERE", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to run report.
+        /// </summary>
+        public static string RUN_REPORT {
+            get {
+                return ResourceManager.GetString("RUN_REPORT", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to run more report.
+        /// </summary>
+        public static string RUN_MORE_REPORT {
+            get {
+                return ResourceManager.GetString("RUN_MORE_REPORT", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Click "More" for more report contents.
+        /// </summary>
+        public static string WLB_MORE_REPORT_BANNER {
+            get {
+                return ResourceManager.GetString("WLB_MORE_REPORT_BANNER", resourceCulture);
+            }
+        }
     }
 }
