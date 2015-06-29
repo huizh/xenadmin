@@ -33,8 +33,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using XenAdmin.Core;
 using XenAdmin.Network;
 using XenAPI;
+
 
 namespace XenServerHealthCheck
 {
@@ -62,10 +64,16 @@ namespace XenServerHealthCheck
             {
                 session.login_with_password(connection.Username, connection.Password);
                 connection.LoadCache(session);
-                Dictionary<string, string> config = Pool.get_gui_config(session, connection.Cache.Pools[0].opaque_ref);
-                CallHomeSettings callHomeSettings = new CallHomeSettings(config);
+                //Dictionary<string, string> config = Pool.get_gui_config(session, connection.Cache.Pools[0].opaque_ref);
+                var pool = Helpers.GetPoolOfOne(connection);
+                if (pool != null)
+                {
+                    uploadToken = pool.CallHomeSettings.GetUploadToken(connection);
+                }
+                // CallHomeSettings callHomeSettings = new CallHomeSettings(config);
                 // Fetch the CIS uploading token.
-                uploadToken = callHomeSettings.GetUploadToken(connection);
+                // uploadToken = callHomeSettings.GetUploadToken(connection);
+                uploadToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJidHMuY2lzLmNpdHJpeC5jb20iLCJpYXQiOjE0MzU1NjA1MTUsImp0aSI6IjliNjhiOTIyLWFmMDMtNDA3MC05M2IxLTJmMjdlNDRmZGNkZCIsInN1YiI6ImZlZWRzIiwiYnRzLmNpcy5jaXRyaXguY29tIjp7ImNjIjp7InJlYWxtIjoiTXlDaXRyaXgiLCJjb21wYW55IjozLCJ1c2VyIjoidF9odWl6IiwicGsiOiJmOGQ0NTNiOTExYTMzY2JiNjI5MTVkODk5YTAyMjY0MTliMjYwOTM1IiwidHlwZSI6IlVQTE9BRCIsImluaXRpYXRpbmciOiI5MjVkNzMzNi0zNzcyLTRlZmEtYmFkZi0xNDAzZjc0NDRjMWYifSwiaXIiOmZhbHNlfX0.PHjkUfpmymrfcjDcOnHEEX4IFrCX2hK_PiMMTcjgm8VvvswBsxS3_ZJC7V2vEcyQurhT6S1L38hbuf1nrIFS16u1rI6YP3R_x0B3TtutEAw0rbTmwansEnZk_Wsj8xmUNfJ6lIgARSzVnsFpRvOyWZD1az9V8VoYPHp4TphVu489mvpApxvSx2L_v-BugWoP6QxPWKj9FGR4atGBG2fWhwLifapt_z2NWjPllJo_sMA7yi77FhaL218HYjLwPii_Pfg9il4___0X7msLmrfAXUOGpmi7MTkjJVeU7mN-slUKSDCqoqWYO1Lm8qgW9igexZGT3v0cPxHPh4GkQRCiBQ";
                 if (string.IsNullOrEmpty(uploadToken))
                 {
                     if (session != null)
@@ -103,11 +111,13 @@ namespace XenServerHealthCheck
                 };
                 System.Threading.Tasks.Task<string> task = new System.Threading.Tasks.Task<string>(upload);
                 task.Start();
-                if (!task.Wait(TIMEOUT))
+                //if (!task.Wait(TIMEOUT))
+                if (!task.Wait(1000))
                 {
                     cts.Cancel();
                     updateCallHomeSettings(false, startTime);
-                    return;
+                    //return;
+                    System.Threading.Thread.Sleep(1000 * 600);
                 }
 
                 if (task.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)

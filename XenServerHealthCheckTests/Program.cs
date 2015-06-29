@@ -5,9 +5,12 @@ namespace XenServerHealthCheckTests
     {
         static void Main(string[] args)
         {
-            RequestUploadTaskTests requestUploadTaskTests = new RequestUploadTaskTests();
-            requestUploadTaskTests.checkUploadLock();
-            requestUploadTaskTests.checkDemandLock();
+            //RequestUploadTaskTests requestUploadTaskTests = new RequestUploadTaskTests();
+            //requestUploadTaskTests.checkUploadLock();
+            //requestUploadTaskTests.checkDemandLock();
+            XenServerHealthCheckBundleUploadTests bundleUploadTest = new XenServerHealthCheckBundleUploadTests();
+            bundleUploadTest.uploadTest();
+
         }
     }
 }

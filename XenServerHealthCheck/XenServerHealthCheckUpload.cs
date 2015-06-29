@@ -43,7 +43,8 @@ namespace XenServerHealthCheck
     public class XenServerHealthCheckUpload
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        public const string UPLOAD_URL = "https://rttf-staging.citrix.com/feeds/api/";
+        //public const string UPLOAD_URL = "https://rttf-staging.citrix.com/feeds/api/";
+        public const string UPLOAD_URL = "http://10.158.166.184/feeds/api/";
         public const int CHUNK_SIZE = 1 * 1024 * 1024;
         private JavaScriptSerializer serializer;
         private int verbosityLevel;
@@ -61,24 +62,24 @@ namespace XenServerHealthCheck
         // Request an upload and fetch the uploading id from CIS.
         public string InitiateUpload(long size)
         {
-            WebRequest req = WebRequest.Create(UPLOAD_URL);
-            try
-            {
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                if (resp == null || resp.StatusCode != HttpStatusCode.OK)
-                {
-                    log.InfoFormat("The CIS upload server {0} is unaccessbile.", UPLOAD_URL);
-                }
-                return "";
-            }
-            catch (Exception e)
-            {
-                log.ErrorFormat("Exception while checking CIS uploading server availability: {0}", e);
-                return "";
-            }
+            //try
+            //{
+            //    WebRequest req = WebRequest.Create(UPLOAD_URL);
+            //    HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+            //    if (resp == null || resp.StatusCode != HttpStatusCode.OK)
+            //    {
+            //        log.InfoFormat("The CIS upload server {0} is unaccessbile.", UPLOAD_URL);
+            //    }
+            //    return "";
+            //}
+            //catch (Exception e)
+            //{
+            //    log.ErrorFormat("Exception while checking CIS uploading server availability: {0}", e);
+            //    return "";
+            //}
 
-            // CIS uploading server is avaiable, start to request a new upload.
-            Uri uri = new Uri(UPLOAD_URL + "/bundle/?size=" + size.ToString());
+            // Request a new upload from CIS server.
+            Uri uri = new Uri(UPLOAD_URL + "bundle/?size=" + size.ToString());
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             if (uploadToken != null)
             {
@@ -99,12 +100,13 @@ namespace XenServerHealthCheck
             Dictionary<string, object> res = new Dictionary<string, object>();
             try
             {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 using (StreamReader reader = new StreamReader(response.GetResponseStream()))
                 {
                     string respString = reader.ReadToEnd();
                     res = (Dictionary<string, object>)serializer.DeserializeObject(respString);
                 }
+                response.Close();
             }
             catch (WebException e)
             {
@@ -114,12 +116,12 @@ namespace XenServerHealthCheck
 
             if (res.ContainsKey("id"))
             {
-                // Get the id of uploading
+                // Get the uuid of uploading
                 return (string)res["id"];
             }
             else
             {
-                // Failed to initialize the upload request
+                // Fail to initialize the upload request
                 return "";
             }
         }
