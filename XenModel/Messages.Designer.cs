@@ -563,7 +563,18 @@ namespace XenAdmin {
                 return ResourceManager.GetString("ACTION_DETACHING_MULTIPLE_VDIS_TITLE", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Disable IGMP snooping.
+        /// </summary>
+        public static string ACTION_DISABLE_IGMP_SNOOPING
+        {
+            get
+            {
+                return ResourceManager.GetString("ACTION_DISABLE_IGMP_SNOOPING", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Disable live patching.
         /// </summary>
@@ -923,7 +934,18 @@ namespace XenAdmin {
                 return ResourceManager.GetString("ACTION_DR_TASK_DESTROY_TITLE", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable IGMP Snooping.
+        /// </summary>
+        public static string ACTION_ENABLE_IGMP_SNOOPING
+        {
+            get
+            {
+                return ResourceManager.GetString("ACTION_ENABLE_IGMP_SNOOPING", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Enable live patching.
         /// </summary>
@@ -22706,7 +22728,19 @@ namespace XenAdmin {
                 return ResourceManager.GetString("NETWORK_SETTINGS", resourceCulture);
             }
         }
-        
+
+
+        /// <summary>
+        ///   Looks up a localized string similar to Network Options.
+        /// </summary>
+        public static string NETWORK_OPTIONS
+        {
+            get
+            {
+                return ResourceManager.GetString("NETWORK_OPTIONS", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to {0} on {1}.
         /// </summary>
