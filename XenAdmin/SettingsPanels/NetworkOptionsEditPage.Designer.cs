@@ -33,7 +33,12 @@
             this.radioButtonEnable = new System.Windows.Forms.RadioButton();
             this.labelRubric = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.iconWarningIGMPSnoopingOption = new System.Windows.Forms.PictureBox();
+            this.labelWarningIGMPSnoopingOption = new System.Windows.Forms.Label();
+            this.warningsTable = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.iconWarningIGMPSnoopingOption)).BeginInit();
+            this.warningsTable.SuspendLayout();
             this.SuspendLayout();
             // 
             // radioButtonDisable
@@ -62,16 +67,40 @@
             this.tableLayoutPanel1.Controls.Add(this.labelRubric, 0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             // 
+            // iconWarningIGMPSnoopingOption
+            // 
+            resources.ApplyResources(this.iconWarningIGMPSnoopingOption, "iconWarningIGMPSnoopingOption");
+            this.iconWarningIGMPSnoopingOption.Image = global::XenAdmin.Properties.Resources._000_Info3_h32bit_16;
+            this.iconWarningIGMPSnoopingOption.Name = "iconWarningIGMPSnoopingOption";
+            this.iconWarningIGMPSnoopingOption.TabStop = false;
+            // 
+            // labelWarningIGMPSnoopingOption
+            // 
+            resources.ApplyResources(this.labelWarningIGMPSnoopingOption, "labelWarningIGMPSnoopingOption");
+            this.labelWarningIGMPSnoopingOption.Name = "labelWarningIGMPSnoopingOption";
+            // 
+            // warningsTable
+            // 
+            this.warningsTable.AllowDrop = true;
+            resources.ApplyResources(this.warningsTable, "warningsTable");
+            this.warningsTable.Controls.Add(this.labelWarningIGMPSnoopingOption, 0, 1);
+            this.warningsTable.Controls.Add(this.iconWarningIGMPSnoopingOption, 0, 1);
+            this.warningsTable.Name = "warningsTable";
+            // 
             // NetworkOptionsEditPage
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.Controls.Add(this.warningsTable);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.radioButtonDisable);
             this.Controls.Add(this.radioButtonEnable);
             this.Name = "NetworkOptionsEditPage";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.iconWarningIGMPSnoopingOption)).EndInit();
+            this.warningsTable.ResumeLayout(false);
+            this.warningsTable.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -83,6 +112,8 @@
         private System.Windows.Forms.RadioButton radioButtonEnable;
         private System.Windows.Forms.Label labelRubric;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-
+        private System.Windows.Forms.PictureBox iconWarningIGMPSnoopingOption;
+        private System.Windows.Forms.Label labelWarningIGMPSnoopingOption;
+        private System.Windows.Forms.TableLayoutPanel warningsTable;
     }
 }
