@@ -4676,6 +4676,10 @@ namespace XenAPI
         Response<string []>
         pif_get_capabilities(string session, string _pif);
 
+        [XmlRpcMethod("PIF.get_igmp_snooping_status")]
+        Response<string>
+        pif_get_igmp_snooping_status(string session, string _pif);
+
         [XmlRpcMethod("PIF.set_other_config")]
         Response<string>
         pif_set_other_config(string session, string _pif, Object _other_config);
@@ -8144,6 +8148,7 @@ namespace XenAPI
         public bool managed;
         public Object properties;
         public string [] capabilities;
+        public string igmp_snooping_status;
     }
 
     [XmlRpcMissingMapping(MappingAction.Ignore)]
